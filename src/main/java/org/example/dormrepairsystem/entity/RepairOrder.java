@@ -1,0 +1,70 @@
+package org.example.dormrepairsystem.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+/**
+ * 报修单实体类
+ */
+@TableName("repair_order")
+@Data
+public class RepairOrder {
+    /**
+     * 报修单主键ID
+     */
+    @TableId(type = IdType.AUTO)
+    private Long orderId;
+
+    /**
+     * 关联报修用户ID
+     */
+    private Long userId;
+
+    /**
+     * 关联宿舍ID（快速定位报修地址）
+     */
+    private Long dormId;
+    
+    /**
+     * 关联维修人员ID
+     */
+    private Long repairmanId;
+
+    /**
+     * 楼栋
+     */
+    private String building;
+
+    /**
+     * 房间号
+     */
+    private String roomNum;
+
+    /**
+     * 设备类型：如水龙头/电灯/空调/马桶
+     */
+    private String deviceType;
+
+    /**
+     * 问题描述
+     */
+    private String problemDesc;
+
+    /**
+     * 报修单状态：待处理/维修中/已完成/已取消
+     */
+    private String orderStatus;
+
+    /**
+     * 报修创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 状态最后修改时间
+     */
+    private LocalDateTime updateTime;
+}

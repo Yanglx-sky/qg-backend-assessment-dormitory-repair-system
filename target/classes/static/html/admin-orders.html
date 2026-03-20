@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿舍报修系统 - 所有订单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .nav {
+            background-color: white;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav a {
+            float: left;
+            display: block;
+            color: #333;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background-color: #f5f5f5;
+            color: #4facfe;
+        }
+        
+        .nav a:last-child {
+            float: right;
+        }
+        
+        .container {
+            padding: 30px;
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #ff5722 0%, #f4511e 100%);
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.3);
+        }
+        
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .order-list {
+            margin-top: 20px;
+        }
+        
+        .order-item {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .order-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .order-item h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .order-item p {
+            margin: 8px 0;
+            color: #666;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .status-processing {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .nav a {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>宿舍报修系统 - 所有订单</h1>
+    </div>
+    <div class="nav">
+        <a href="admin.html">管理员首页</a>
+        <a href="admin-orders.html">所有订单</a>
+        <a href="admin-students.html">所有学生</a>
+        <a href="admin-repairmen.html">所有维修人员</a>
+        <a href="admin-dormitories.html">所有宿舍</a>
+        <a href="login.html">退出登录</a>
+    </div>
+    <div class="container">
+        <!-- 所有报修 -->
+        <div id="all-orders" style="margin-bottom: 40px;">
+            <h2>所有报修</h2>
+            <div class="order-list" id="all-list">
+                <!-- 订单列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    <script>
+        // 页面加载时获取所有报修列表
+        window.onload = function() {
+            getAllOrders();
+        };
+        
+        // 点击删除按钮
+        function deleteOrder(id) {
+            if (confirm('确定要删除报修单 #' + id + ' 吗？')) {
+                // 发送删除请求
+                fetch('/repairOrder/delete/' + id, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message success';
+                        messageDiv.textContent = '报修删除成功！';
+                        messageDiv.style.display = 'block';
+                        document.getElementById('all-orders').insertBefore(messageDiv, document.getElementById('all-list'));
+                        
+                        // 3秒后隐藏消息
+                        setTimeout(() => {
+                            messageDiv.style.display = 'none';
+                        }, 3000);
+                        
+                        // 刷新所有报修列表
+                        getAllOrders();
+                    } else {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message error';
+                        messageDiv.textContent = '报修删除失败：' + data.message;
+                        messageDiv.style.display = 'block';
+                        document.getElementById('all-orders').insertBefore(messageDiv, document.getElementById('all-list'));
+                        
+                        // 3秒后隐藏消息
+                        setTimeout(() => {
+                            messageDiv.style.display = 'none';
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = '报修删除失败，请稍后重试';
+                    messageDiv.style.display = 'block';
+                    document.getElementById('all-orders').insertBefore(messageDiv, document.getElementById('all-list'));
+                    console.error('删除失败:', error);
+                    
+                    // 3秒后隐藏消息
+                    setTimeout(() => {
+                        messageDiv.style.display = 'none';
+                    }, 3000);
+                });
+            }
+        }
+        
+        // 获取所有报修列表
+        function getAllOrders() {
+            fetch('/repairOrder/listWithUserInfo')
+            .then(response => response.json())
+            .then(data => {
+                const allList = document.getElementById('all-list');
+                allList.innerHTML = '';
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    data.data.forEach(order => {
+                        const orderItem = document.createElement('div');
+                        orderItem.className = 'order-item';
+                        
+                        // 根据状态设置不同的样式
+                        let statusClass = 'status-pending';
+                        if (order.orderStatus === '维修中') {
+                            statusClass = 'status-processing';
+                        } else if (order.orderStatus === '已完成') {
+                            statusClass = 'status-completed';
+                        } else if (order.orderStatus === '已取消') {
+                            statusClass = 'status-cancelled';
+                        }
+                        
+                        orderItem.innerHTML = `
+                            <h3>报修单 #${order.orderId}</h3>
+                            <p>学生：${order.userName || '-'}</p>
+                            <p>宿舍：${order.building || '-'}-${order.roomNum || '-'}</p>
+                            <p>维修人员：${order.repairmanName || '-'}</p>
+                            <p>设备类型：${order.deviceType}</p>
+                            <p>问题描述：${order.problemDesc}</p>
+                            <p>状态：<span class="order-status ${statusClass}">${order.orderStatus}</span></p>
+                            <p>提交时间：${order.createTime || new Date().toLocaleString()}</p>
+                            <button class="btn" onclick="updateOrderStatus(${order.orderId})">修改状态</button>
+                            <button class="delete-btn" onclick="deleteOrder(${order.orderId})">删除</button>
+                        `;
+                        
+                        allList.appendChild(orderItem);
+                    });
+                } else {
+                    allList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">暂无报修记录</p>';
+                }
+            })
+            .catch(error => {
+                console.error('获取所有报修列表失败:', error);
+                document.getElementById('all-list').innerHTML = '<p style="text-align: center; color: #721c24; padding: 20px;">获取所有报修列表失败</p>';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿舍报修系统 - 我的宿舍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .nav {
+            background-color: white;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav a {
+            float: left;
+            display: block;
+            color: #333;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background-color: #f5f5f5;
+            color: #4facfe;
+        }
+        
+        .nav a:last-child {
+            float: right;
+        }
+        
+        .container {
+            padding: 30px;
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #4facfe;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #00f2fe;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .nav a {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>宿舍报修系统 - 我的宿舍</h1>
+    </div>
+    <div class="nav">
+        <a href="student-index.html">首页</a>
+        <a href="student-dorm.html">我的宿舍</a>
+        <a href="student-orders.html">我的订单</a>
+        <a href="student-submit.html">提交报修</a>
+        <a href="login.html">退出登录</a>
+    </div>
+    <div class="container">
+        <h2 id="dorm-title">绑定宿舍</h2>
+        <div class="message" id="bind-message" style="display: none;"></div>
+        <form id="bind-form">
+            <div class="form-group">
+                <label for="building">楼栋</label>
+                <input type="text" id="building" name="building" required placeholder="如：1栋、东区5栋">
+            </div>
+            <div class="form-group">
+                <label for="roomNum">房间号</label>
+                <input type="text" id="roomNum" name="roomNum" required placeholder="如：502、301-2">
+            </div>
+            <button type="submit" id="bind-btn">绑定宿舍</button>
+        </form>
+        <a href="student-index.html" class="back-link">返回首页</a>
+    </div>
+    <script>
+        // 从localStorage中获取当前登录用户信息
+        let currentUserId = 1; // 默认值，以防localStorage中没有用户信息
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            currentUserId = user.userId;
+        }
+        
+        // 页面加载时获取已绑定的宿舍信息
+        window.onload = function() {
+            getBoundDormitory();
+        };
+        
+        // 获取已绑定的宿舍信息
+        function getBoundDormitory() {
+            fetch('/dormitory/getByUserId/' + currentUserId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    // 显示已绑定的宿舍
+                    const buildingInput = document.getElementById('building');
+                    const roomNumInput = document.getElementById('roomNum');
+                    buildingInput.value = data.data.building;
+                    roomNumInput.value = data.data.roomNum;
+                    
+                    // 修改按钮文本和标题为"修改宿舍"
+                    document.getElementById('dorm-title').textContent = '修改宿舍';
+                    document.getElementById('bind-btn').textContent = '修改宿舍';
+                } else {
+                    // 恢复按钮文本和标题为"绑定宿舍"
+                    document.getElementById('dorm-title').textContent = '绑定宿舍';
+                    document.getElementById('bind-btn').textContent = '绑定宿舍';
+                }
+            })
+            .catch(error => {
+                console.error('获取宿舍信息失败:', error);
+            });
+        }
+        
+        // 绑定宿舍表单提交
+        document.getElementById('bind-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const building = document.getElementById('building').value;
+            const roomNum = document.getElementById('roomNum').value;
+            
+            // 构建宿舍对象
+            const dormitory = {
+                userId: currentUserId,
+                building: building,
+                roomNum: roomNum
+            };
+            
+            // 发送绑定请求
+            fetch('/dormitory/bind', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dormitory)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('bind-message');
+                if (data.success) {
+                    messageDiv.className = 'message success';
+                    // 根据当前按钮文本判断是绑定还是修改
+                    const bindBtn = document.getElementById('bind-btn');
+                    if (bindBtn.textContent === '修改宿舍') {
+                        messageDiv.textContent = '宿舍修改成功！';
+                    } else {
+                        messageDiv.textContent = '宿舍绑定成功！';
+                    }
+                    // 刷新已绑定的宿舍信息
+                    getBoundDormitory();
+                } else {
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = '操作失败：' + data.message;
+                }
+                messageDiv.style.display = 'block';
+                
+                // 3秒后隐藏消息
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 3000);
+            })
+            .catch(error => {
+                const messageDiv = document.getElementById('bind-message');
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '操作失败，请稍后重试';
+                messageDiv.style.display = 'block';
+                console.error('操作失败:', error);
+                
+                // 3秒后隐藏消息
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>

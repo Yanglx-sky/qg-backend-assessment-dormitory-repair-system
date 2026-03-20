@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿舍报修系统 - 接取订单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .nav {
+            background-color: white;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav a {
+            float: left;
+            display: block;
+            color: #333;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background-color: #f5f5f5;
+            color: #4facfe;
+        }
+        
+        .nav a:last-child {
+            float: right;
+        }
+        
+        .container {
+            padding: 30px;
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+        
+        .order-list {
+            margin-top: 20px;
+        }
+        
+        .order-item {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .order-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .order-item h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .order-item p {
+            margin: 8px 0;
+            color: #666;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .status-processing {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .nav a {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>宿舍报修系统 - 维修人员</h1>
+    </div>
+    <div class="nav">
+        <a href="repair-accept.html">接取订单</a>
+        <a href="repair-orders.html">我的订单</a>
+        <a href="login.html">退出登录</a>
+    </div>
+    <div class="container">
+        <h2>待处理报修</h2>
+        <div class="message" id="accept-message" style="display: none;"></div>
+        <div class="order-list" id="pending-list">
+            <!-- 订单列表将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    <script>
+        // 从localStorage中获取当前登录用户信息
+        let currentUserId = 2; // 默认值，以防localStorage中没有用户信息
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            currentUserId = user.userId;
+        }
+        
+        // 页面加载时获取待处理的报修订单
+        window.onload = function() {
+            getPendingOrders();
+        };
+        
+        // 获取待处理的报修订单
+        function getPendingOrders() {
+            fetch('/repairOrder/getByStatus/待处理')
+            .then(response => response.json())
+            .then(data => {
+                const pendingList = document.getElementById('pending-list');
+                pendingList.innerHTML = '';
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    data.data.forEach(order => {
+                        const orderItem = document.createElement('div');
+                        orderItem.className = 'order-item';
+                        
+                        orderItem.innerHTML = `
+                            <h3>报修单 #${order.orderId}</h3>
+                            <p>宿舍：${order.building || '-'}-${order.roomNum || '-'}</p>
+                            <p>设备类型：${order.deviceType}</p>
+                            <p>问题描述：${order.problemDesc}</p>
+                            <p>状态：<span class="order-status status-pending">${order.orderStatus}</span></p>
+                            <p>提交时间：${order.createTime || new Date().toLocaleString()}</p>
+                            <button class="btn" onclick="acceptOrder(${order.orderId})">接取订单</button>
+                        `;
+                        
+                        pendingList.appendChild(orderItem);
+                    });
+                } else {
+                    pendingList.innerHTML = '<div class="no-data">暂无待处理的报修订单</div>';
+                }
+            })
+            .catch(error => {
+                console.error('获取待处理报修订单失败:', error);
+                document.getElementById('pending-list').innerHTML = '<div class="no-data">获取待处理报修订单失败</div>';
+            });
+        }
+        
+        // 接取订单
+        function acceptOrder(orderId) {
+            // 构建接取订单对象
+            const params = {
+                orderId: orderId,
+                repairmanId: currentUserId
+            };
+            
+            // 发送接取订单请求
+            fetch('/repairOrder/accept', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('accept-message');
+                if (data.success) {
+                    messageDiv.className = 'message success';
+                    messageDiv.textContent = '接取订单成功！';
+                    // 刷新待处理订单列表
+                    getPendingOrders();
+                } else {
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = '接取订单失败：' + data.message;
+                }
+                messageDiv.style.display = 'block';
+                
+                // 3秒后隐藏消息
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 3000);
+            })
+            .catch(error => {
+                const messageDiv = document.getElementById('accept-message');
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '接取订单失败，请稍后重试';
+                messageDiv.style.display = 'block';
+                console.error('接取订单失败:', error);
+                
+                // 3秒后隐藏消息
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>

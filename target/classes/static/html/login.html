@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宿舍报修系统 - 登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #ff4757;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: transparent;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .register-link a {
+            color: #4facfe;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .register-link a:hover {
+            color: #00f2fe;
+            text-decoration: underline;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px;
+                margin: 0 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>宿舍报修系统</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="account">账号</label>
+                <input type="text" id="account" name="account" required placeholder="请输入账号">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required placeholder="请输入密码">
+            </div>
+            <button type="submit" id="login-btn">
+                <span id="btn-text">登录</span>
+                <span id="loading" class="loading" style="display: none;"></span>
+            </button>
+            <div class="error-message" id="error-message"></div>
+            <div class="register-link">
+                没有账号？<a href="register.html">注册</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const account = document.getElementById('account').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const loginBtn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const loading = document.getElementById('loading');
+            
+            // 清空错误信息
+            errorMessage.textContent = '';
+            errorMessage.style.display = 'none';
+            
+            // 验证输入
+            if (!account || !password) {
+                errorMessage.textContent = '请输入账号和密码';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // 显示加载状态
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+            loginBtn.disabled = true;
+            
+            // 构建登录对象
+            const user = {
+                account: account,
+                password: password
+            };
+            
+            // 发送登录请求
+            fetch('/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 恢复按钮状态
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                
+                if (data.success) {
+                    // 存储用户信息到localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    // 根据用户角色跳转到对应页面
+                    const roleId = data.user.roleId;
+                    if (roleId === 1) {
+                        // 学生
+                        window.location.href = 'student-index.html';
+                    } else if (roleId === 2) {
+                        // 管理员
+                        window.location.href = 'admin.html';
+                    } else if (roleId === 3) {
+                        // 维修人员
+                        window.location.href = 'repair-accept.html';
+                    }
+                } else {
+                    errorMessage.textContent = data.message;
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                // 恢复按钮状态
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                
+                errorMessage.textContent = '登录失败，请稍后重试';
+                errorMessage.style.display = 'block';
+                console.error('登录失败:', error);
+            });
+        });
+    </script>
+</body>
+</html>
