@@ -2,10 +2,14 @@ spring:
   application:
     name: DormRepairSystem
   datasource:
-    url: jdbc:mysql://localhost:3306/dorm_repair_system?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: 1234
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 server:
   port: 8082
@@ -15,3 +19,18 @@ mybatis-plus:
   type-aliases-package: org.example.dormrepairsystem.entity
   configuration:
     map-underscore-to-camel-case: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+  show-actuator: false
+
+# 阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    accessKeyId: ${ALI_OSS_AK}
+    accessKeySecret: ${ALI_OSS_SK}
+    bucketName: dorm-repair-system

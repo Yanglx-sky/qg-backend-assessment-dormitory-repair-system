@@ -13,14 +13,14 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -224,7 +224,7 @@
         <a href="admin-students.html">所有学生</a>
         <a href="admin-repairmen.html">所有维修人员</a>
         <a href="admin-dormitories.html">所有宿舍</a>
-        <a href="login.html">退出登录</a>
+        <a href="javascript:void(0);" onclick="logout()">退出登录</a>
     </div>
     <div class="container">
         <!-- 所有学生 -->
@@ -236,6 +236,45 @@
         </div>
     </div>
     <script>
+        // 退出登录函数
+        function logout() {
+            // 清除localStorage中的token和用户信息
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+        
+        // 通用fetch函数，带JWT令牌
+        function fetchWithToken(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // 没有令牌，跳转到登录页面
+                window.location.href = 'login.html';
+                return Promise.reject('No token found');
+            }
+            
+            // 设置默认请求头
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            
+            return fetch(url, {
+                ...options,
+                headers
+            }).then(response => {
+                // 检查响应状态
+                if (response.status === 401) {
+                    // 未授权，跳转到登录页面
+                    window.location.href = 'login.html';
+                    return Promise.reject('Unauthorized');
+                }
+                return response.json();
+            });
+        }
+        
         // 页面加载时获取所有学生
         window.onload = function() {
             getAllStudents();
@@ -243,8 +282,7 @@
         
         // 获取所有学生
         function getAllStudents() {
-            fetch('/user/listByRole/1')
-            .then(response => response.json())
+            fetchWithToken('/users?roleId=1')
             .then(data => {
                 const studentsList = document.getElementById('students-list');
                 studentsList.innerHTML = '';
@@ -277,10 +315,9 @@
         function deleteUser(userId) {
             if (confirm('确定要删除用户 #' + userId + ' 吗？')) {
                 // 发送删除请求
-                fetch('/user/delete/' + userId, {
+                fetchWithToken('/users/' + userId, {
                     method: 'DELETE'
                 })
-                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const messageDiv = document.createElement('div');

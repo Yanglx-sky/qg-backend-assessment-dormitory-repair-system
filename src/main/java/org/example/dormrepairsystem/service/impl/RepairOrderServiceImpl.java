@@ -79,8 +79,10 @@ public class RepairOrderServiceImpl extends ServiceImpl<RepairOrderMapper, Repai
     // 获取所有订单（包含用户信息，管理员专属）
     @Override
     public List<OrderWithUserDTO> getAllOrdersWithUserInfo() {
-        // 查询所有订单
-        List<RepairOrder> orders = this.list();
+        // 查询所有订单，按创建时间倒序
+        LambdaQueryWrapper<RepairOrder> wrapper = new LambdaQueryWrapper<>();
+        wrapper.orderByDesc(RepairOrder::getCreateTime);
+        List<RepairOrder> orders = this.list(wrapper);
         List<OrderWithUserDTO> dtos = new ArrayList<>();
         
         // 遍历订单，查询用户信息

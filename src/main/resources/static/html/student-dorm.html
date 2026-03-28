@@ -13,14 +13,14 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -84,7 +84,7 @@
             margin-bottom: 25px;
             font-size: 20px;
             font-weight: 600;
-            border-bottom: 2px solid #4facfe;
+            border-bottom: 2px solid #87CEEB;
             padding-bottom: 10px;
         }
         
@@ -111,13 +111,13 @@
         
         input:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            border-color: #87CEEB;
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.1);
         }
         
         button {
             padding: 12px 24px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -129,7 +129,7 @@
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.3);
         }
         
         button:active {
@@ -195,7 +195,7 @@
         <a href="student-dorm.html">我的宿舍</a>
         <a href="student-orders.html">我的订单</a>
         <a href="student-submit.html">提交报修</a>
-        <a href="login.html">退出登录</a>
+        <a href="javascript:void(0);" onclick="logout()">退出登录</a>
     </div>
     <div class="container">
         <h2 id="dorm-title">绑定宿舍</h2>
@@ -214,12 +214,43 @@
         <a href="student-index.html" class="back-link">返回首页</a>
     </div>
     <script>
+        // 退出登录函数
+        function logout() {
+            // 清除localStorage中的token和用户信息
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+        
         // 从localStorage中获取当前登录用户信息
         let currentUserId = 1; // 默认值，以防localStorage中没有用户信息
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             currentUserId = user.userId;
+        }
+        
+        // 带token的fetch函数
+        function fetchWithToken(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return Promise.reject('No token found');
+            }
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            return fetch(url, { ...options, headers })
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = 'login.html';
+                        return Promise.reject('Unauthorized');
+                    }
+                    return response.json();
+                });
         }
         
         // 页面加载时获取已绑定的宿舍信息
@@ -229,8 +260,7 @@
         
         // 获取已绑定的宿舍信息
         function getBoundDormitory() {
-            fetch('/dormitory/getByUserId/' + currentUserId)
-            .then(response => response.json())
+            fetchWithToken('/dormitories?userId=' + currentUserId)
             .then(data => {
                 if (data.success && data.data) {
                     // 显示已绑定的宿舍
@@ -267,14 +297,10 @@
             };
             
             // 发送绑定请求
-            fetch('/dormitory/bind', {
+            fetchWithToken('/dormitories', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(dormitory)
             })
-            .then(response => response.json())
             .then(data => {
                 const messageDiv = document.getElementById('bind-message');
                 if (data.success) {

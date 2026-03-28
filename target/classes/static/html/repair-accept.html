@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宿舍报修系统 - 接取订单</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/axios.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,14 +15,14 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -84,7 +86,7 @@
             margin-bottom: 25px;
             font-size: 20px;
             font-weight: 600;
-            border-bottom: 2px solid #4facfe;
+            border-bottom: 2px solid #87CEEB;
             padding-bottom: 10px;
         }
         
@@ -153,7 +155,7 @@
         .btn {
             display: inline-block;
             padding: 8px 16px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             border: none;
             border-radius: 6px;
@@ -167,7 +169,7 @@
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.3);
         }
         
         .no-data {
@@ -221,7 +223,7 @@
     <div class="nav">
         <a href="repair-accept.html">接取订单</a>
         <a href="repair-orders.html">我的订单</a>
-        <a href="login.html">退出登录</a>
+        <a href="javascript:void(0);" onclick="logout()">退出登录</a>
     </div>
     <div class="container">
         <h2>待处理报修</h2>
@@ -231,12 +233,30 @@
         </div>
     </div>
     <script>
+        // 退出登录
+        function logout() {
+            // 清除localStorage中的用户信息和令牌
+            localStorage.removeItem('user');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+        
         // 从localStorage中获取当前登录用户信息
         let currentUserId = 2; // 默认值，以防localStorage中没有用户信息
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             currentUserId = user.userId;
+        }
+        
+        // 带token的请求函数，使用axiosInstance
+        function fetchWithToken(url, options = {}) {
+            return axiosInstance({
+                url: url,
+                ...options
+            });
         }
         
         // 页面加载时获取待处理的报修订单
@@ -246,8 +266,7 @@
         
         // 获取待处理的报修订单
         function getPendingOrders() {
-            fetch('/repairOrder/getByStatus/待处理')
-            .then(response => response.json())
+            fetchWithToken('/repair-orders?status=待处理')
             .then(data => {
                 const pendingList = document.getElementById('pending-list');
                 pendingList.innerHTML = '';
@@ -283,19 +302,14 @@
         function acceptOrder(orderId) {
             // 构建接取订单对象
             const params = {
-                orderId: orderId,
                 repairmanId: currentUserId
             };
             
             // 发送接取订单请求
-            fetch('/repairOrder/accept', {
+            fetchWithToken(`/repair-orders/${orderId}/accept`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(params)
             })
-            .then(response => response.json())
             .then(data => {
                 const messageDiv = document.getElementById('accept-message');
                 if (data.success) {

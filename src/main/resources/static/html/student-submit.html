@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宿舍报修系统 - 提交报修</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/axios.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,14 +15,14 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -111,8 +113,8 @@
         
         input:focus, textarea:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            border-color: #87CEEB;
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.1);
         }
         
         textarea {
@@ -122,7 +124,7 @@
         
         button {
             padding: 12px 24px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -134,7 +136,7 @@
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.3);
         }
         
         button:active {
@@ -200,7 +202,7 @@
         <a href="student-dorm.html">我的宿舍</a>
         <a href="student-orders.html">我的订单</a>
         <a href="student-submit.html">提交报修</a>
-        <a href="login.html">退出登录</a>
+        <a href="javascript:void(0);" onclick="logout()">退出登录</a>
     </div>
     <div class="container">
         <h2>提交报修</h2>
@@ -214,17 +216,107 @@
                 <label for="problemDesc">问题描述</label>
                 <textarea id="problemDesc" name="problemDesc" rows="3" placeholder="请详细描述问题，以便维修人员快速了解情况" required></textarea>
             </div>
+            <div class="form-group">
+                <label>上传图片（最多3张，可选）</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="file" id="file1" accept="image/*" style="flex: 1;">
+                    <input type="file" id="file2" accept="image/*" style="flex: 1;">
+                    <input type="file" id="file3" accept="image/*" style="flex: 1;">
+                </div>
+                <div id="preview-container" style="display: flex; gap: 10px; margin-top: 10px;"></div>
+            </div>
             <button type="submit">提交报修</button>
         </form>
         <a href="student-index.html" class="back-link">返回首页</a>
     </div>
     <script>
+        // 退出登录函数
+        function logout() {
+            // 清除localStorage中的token和用户信息
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+        
         // 从localStorage中获取当前登录用户信息
         let currentUserId = 1; // 默认值，以防localStorage中没有用户信息
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             currentUserId = user.userId;
+        }
+        
+        // 带token的请求函数，使用axiosInstance
+        function fetchWithToken(url, options = {}) {
+            return axiosInstance({
+                url: url,
+                ...options
+            });
+        }
+        
+        // 图片预览功能
+        function previewImage(input, previewId) {
+            const previewContainer = document.getElementById('preview-container');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.getElementById(previewId);
+                    if (!preview) {
+                        preview = document.createElement('div');
+                        preview.id = previewId;
+                        preview.style.width = '100px';
+                        preview.style.height = '100px';
+                        preview.style.border = '1px solid #ddd';
+                        preview.style.borderRadius = '8px';
+                        preview.style.overflow = 'hidden';
+                        previewContainer.appendChild(preview);
+                    }
+                    preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const preview = document.getElementById(previewId);
+                if (preview) {
+                    preview.remove();
+                }
+            }
+        }
+        
+        // 为文件输入框添加change事件
+        document.getElementById('file1').addEventListener('change', function() {
+            previewImage(this, 'preview1');
+        });
+        document.getElementById('file2').addEventListener('change', function() {
+            previewImage(this, 'preview2');
+        });
+        document.getElementById('file3').addEventListener('change', function() {
+            previewImage(this, 'preview3');
+        });
+        
+        // 上传图片函数
+        function uploadImages(orderId) {
+            const files = [
+                document.getElementById('file1').files[0],
+                document.getElementById('file2').files[0],
+                document.getElementById('file3').files[0]
+            ];
+            
+            const uploadPromises = files.filter(file => file).map(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                return fetchWithToken(`/repair-orders/${orderId}/images`, {
+                    method: 'POST',
+                    headers: {
+                        // 不需要Content-Type，浏览器会自动设置
+                    },
+                    body: formData
+                });
+            });
+            
+            return Promise.all(uploadPromises);
         }
         
         // 提交报修表单
@@ -240,40 +332,43 @@
                 problemDesc: problemDesc
             };
             
+            const messageDiv = document.getElementById('order-message');
+            messageDiv.className = 'message success';
+            messageDiv.textContent = '正在提交报修...';
+            messageDiv.style.display = 'block';
+            
             // 发送报修请求
-            fetch('/repairOrder/add', {
+            fetchWithToken('/repair-orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(order)
             })
-            .then(response => response.json())
             .then(data => {
-                const messageDiv = document.getElementById('order-message');
                 if (data.success) {
-                    messageDiv.className = 'message success';
-                    messageDiv.textContent = '报修提交成功！';
-                    // 清空表单
-                    this.reset();
+                    // 获取订单ID
+                    const orderId = data.data.orderId;
+                    
+                    // 上传图片
+                    return uploadImages(orderId).then(() => {
+                        messageDiv.className = 'message success';
+                        messageDiv.textContent = '报修提交成功！';
+                        // 清空表单
+                        this.reset();
+                        // 清空预览
+                        document.getElementById('preview-container').innerHTML = '';
+                    });
                 } else {
-                    messageDiv.className = 'message error';
-                    messageDiv.textContent = '报修提交失败：' + data.message;
+                    throw new Error(data.message);
                 }
-                messageDiv.style.display = 'block';
-                
-                // 3秒后隐藏消息
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 3000);
             })
             .catch(error => {
-                const messageDiv = document.getElementById('order-message');
                 messageDiv.className = 'message error';
-                messageDiv.textContent = '报修提交失败，请稍后重试';
-                messageDiv.style.display = 'block';
+                messageDiv.textContent = '报修提交失败：' + error.message;
                 console.error('提交失败:', error);
-                
+            })
+            .finally(() => {
                 // 3秒后隐藏消息
                 setTimeout(() => {
                     messageDiv.style.display = 'none';

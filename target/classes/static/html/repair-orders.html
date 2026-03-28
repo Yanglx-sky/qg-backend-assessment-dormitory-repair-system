@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宿舍报修系统 - 我的订单</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/axios.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,14 +15,14 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -84,7 +86,7 @@
             margin-bottom: 25px;
             font-size: 20px;
             font-weight: 600;
-            border-bottom: 2px solid #4facfe;
+            border-bottom: 2px solid #87CEEB;
             padding-bottom: 10px;
         }
         
@@ -153,7 +155,7 @@
         .btn {
             display: inline-block;
             padding: 8px 16px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             border: none;
             border-radius: 6px;
@@ -167,7 +169,79 @@
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.3);
+        }
+        
+        /* 图片查看模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        
+        .modal-content {
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 12px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .gallery-image {
+            flex: 1 1 30%;
+            min-width: 200px;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .gallery-image img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .no-images {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            width: 100%;
         }
         
         .no-data {
@@ -202,7 +276,7 @@
     <div class="nav">
         <a href="repair-accept.html">接取订单</a>
         <a href="repair-orders.html">我的订单</a>
-        <a href="login.html">退出登录</a>
+        <a href="javascript:void(0);" onclick="logout()">退出登录</a>
     </div>
     <div class="container">
         <h2>我的订单</h2>
@@ -210,13 +284,44 @@
             <!-- 订单列表将通过JavaScript动态生成 -->
         </div>
     </div>
+    
+    <!-- 图片查看模态框 -->
+    <div id="image-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>订单图片</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="image-gallery" id="image-gallery">
+                <!-- 图片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    
     <script>
+        // 退出登录函数
+        function logout() {
+            // 清除localStorage中的token和用户信息
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+        
         // 从localStorage中获取当前登录用户信息
         let currentUserId = 2; // 默认值，以防localStorage中没有用户信息
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             currentUserId = user.userId;
+        }
+        
+        // 带token的请求函数，使用axiosInstance
+        function fetchWithToken(url, options = {}) {
+            return axiosInstance({
+                url: url,
+                ...options
+            });
         }
         
         // 页面加载时获取我的订单
@@ -226,8 +331,7 @@
         
         // 获取我的订单
         function getMyOrders() {
-            fetch('/repairOrder/getByRepairmanId/' + currentUserId)
-            .then(response => response.json())
+            fetchWithToken('/repair-orders?repairmanId=' + currentUserId)
             .then(data => {
                 const orderList = document.getElementById('order-list');
                 orderList.innerHTML = '';
@@ -255,6 +359,7 @@
                             <p>状态：<span class="order-status ${statusClass}">${order.orderStatus}</span></p>
                             <p>提交时间：${order.createTime || new Date().toLocaleString()}</p>
                             <button class="btn" onclick="updateOrderStatus(${order.orderId})">修改状态</button>
+                            <button class="btn" onclick="viewOrderImages(${order.orderId})">查看图片</button>
                         `;
                         
                         orderList.appendChild(orderItem);
@@ -274,21 +379,16 @@
             // 弹出状态选择对话框
             const newStatus = prompt('请选择新状态:', '维修中');
             if (newStatus) {
-                // 构建订单对象
-                const order = {
-                    orderId: orderId,
-                    orderStatus: newStatus
+                // 构建状态更新对象
+                const statusUpdate = {
+                    status: newStatus
                 };
                 
                 // 发送修改状态请求
-                fetch('/repairOrder/updateStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(order)
+                fetchWithToken('/repair-orders/' + orderId + '/status', {
+                    method: 'PUT',
+                    body: JSON.stringify(statusUpdate)
                 })
-                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         alert('状态修改成功！');
@@ -304,6 +404,51 @@
                 });
             }
         }
+        
+        // 查看订单图片
+        function viewOrderImages(orderId) {
+            const modal = document.getElementById('image-modal');
+            const gallery = document.getElementById('image-gallery');
+            
+            // 显示加载状态
+            gallery.innerHTML = '<div class="no-images">加载中...</div>';
+            modal.style.display = 'block';
+            
+            // 获取订单图片
+            fetchWithToken(`/repair-orders/${orderId}/images`)
+                .then(data => {
+                    if (data.success && data.data && data.data.length > 0) {
+                        // 显示图片
+                        gallery.innerHTML = '';
+                        data.data.forEach(image => {
+                            const imageDiv = document.createElement('div');
+                            imageDiv.className = 'gallery-image';
+                            imageDiv.innerHTML = `<img src="${image.imageUrl}" alt="订单图片">`;
+                            gallery.appendChild(imageDiv);
+                        });
+                    } else {
+                        // 显示无图片提示
+                        gallery.innerHTML = '<div class="no-images">该订单没有上传图片</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('获取订单图片失败:', error);
+                    gallery.innerHTML = '<div class="no-images">获取图片失败</div>';
+                });
+        }
+        
+        // 关闭模态框
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('image-modal').style.display = 'none';
+        });
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('image-modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>

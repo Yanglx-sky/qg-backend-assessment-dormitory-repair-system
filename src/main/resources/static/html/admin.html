@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宿舍报修系统 - 管理员首页</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/axios.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,14 +15,14 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
         }
         
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -96,7 +98,7 @@
         }
         
         .dashboard-card {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
             color: white;
             padding: 30px;
             border-radius: 12px;
@@ -125,7 +127,7 @@
         .dashboard-card a {
             display: inline-block;
             background-color: white;
-            color: #4facfe;
+            color: #4682B4;
             padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
@@ -169,7 +171,7 @@
         <a href="admin-students.html">所有学生</a>
         <a href="admin-repairmen.html">所有维修人员</a>
         <a href="admin-dormitories.html">所有宿舍</a>
-        <a href="login.html">退出登录</a>
+        <a href="javascript:void(0);" onclick="logout()">退出登录</a>
     </div>
     <div class="container">
         <h2>管理员控制台</h2>
@@ -196,5 +198,16 @@
             </div>
         </div>
     </div>
+    <script>
+        // 退出登录
+        function logout() {
+            // 清除localStorage中的用户信息和令牌
+            localStorage.removeItem('user');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+    </script>
 </body>
 </html>
