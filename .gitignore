@@ -1,0 +1,16 @@
+### 前端 ###
+node_modules/
+dist/
+
+### IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+*.xml
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### 环境变量文件（密码文件，禁止上传）
+.env
