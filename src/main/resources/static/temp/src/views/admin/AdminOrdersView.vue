@@ -131,36 +131,46 @@ const getAllOrders = async (status = '', page = 1, size = 5) => {
   try {
     loading.value = true
     error.value = false
-    let url = `/repair-orders?page=${page}&size=${size}&includeUserInfo=true`
-    if (status) {
-      url += `&status=${encodeURIComponent(status)}`
-    }
+    // 获取所有订单数据（不分页）
+    let url = `/repair-orders?includeUserInfo=true`
     console.log('获取订单列表，状态:', status, '页码:', page, '每页大小:', size, 'URL:', url)
     const response = await axiosInstance.get(url)
     console.log('获取订单列表响应:', response)
     if (response.success && response.data) {
-      // 处理后端返回的数据，兼容分页和非分页格式
+      // 处理后端返回的数据
       let orderList = []
       if (response.data.records) {
         // 分页格式
         orderList = response.data.records || []
-        total.value = response.data.total || 0
-        pages.value = response.data.pages || 1
-        currentPage.value = page
-        pageSize.value = size
       } else {
         // 非分页格式（直接返回订单列表）
         orderList = response.data
-        total.value = orderList.length
-        pages.value = 1
-        currentPage.value = 1
       }
+      
+      // 前端按状态筛选
+      if (status) {
+        orderList = orderList.filter(order => order.orderStatus === status)
+      }
+      
+      // 计算总记录数和总页数
+      total.value = orderList.length
+      pages.value = Math.ceil(total.value / size)
+      currentPage.value = page
+      pageSize.value = size
+      
+      // 手动分页
+      const start = (page - 1) * size
+      const end = start + size
+      const paginatedOrders = orderList.slice(start, end)
+      
       // 为每个订单添加newStatus字段，初始值为当前的orderStatus
-      orders.value = orderList.map(order => ({
+      orders.value = paginatedOrders.map(order => ({
         ...order,
         newStatus: order.orderStatus
       }))
       console.log('订单列表:', orders.value)
+      console.log('总记录数:', total.value)
+      console.log('总页数:', pages.value)
     }
   } catch (err) {
     console.error('获取订单列表失败:', err)

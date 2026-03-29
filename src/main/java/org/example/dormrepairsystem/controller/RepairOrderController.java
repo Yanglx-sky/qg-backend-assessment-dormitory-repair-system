@@ -110,22 +110,9 @@ public class RepairOrderController {
         // 如果指定了includeUserInfo且为true，返回包含用户信息的订单
         if (Boolean.TRUE.equals(includeUserInfo)) {
             List<OrderWithUserDTO> orders = repairOrderService.getAllOrdersWithUserInfo();
-            // 内存分页
-            int total = orders.size();
-            int start = (page - 1) * size;
-            int end = Math.min(start + size, total);
-            List<OrderWithUserDTO> pageOrders = orders.subList(start, end);
-            
-            Map<String, Object> pageResult = new HashMap<>();
-            pageResult.put("records", pageOrders);
-            pageResult.put("total", total);
-            pageResult.put("current", page);
-            pageResult.put("size", size);
-            pageResult.put("pages", (int) Math.ceil((double) total / size));
-            
-            log.info("查询成功：总记录数={}, 总页数={}", total, (int) Math.ceil((double) total / size));
+            log.info("查询成功：总记录数={}", orders.size());
             result.put("success", true);
-            result.put("data", pageResult);
+            result.put("data", orders);
         } else {
             // 普通查询
             if (userId != null) {
